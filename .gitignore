@@ -1,0 +1,41 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.d/
+crash.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+
+# SSH keys
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Docker
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
