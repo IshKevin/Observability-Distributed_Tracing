@@ -3,25 +3,15 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get update -y
-apt-get install -y ca-certificates curl gnupg git
+apt-get install -y ca-certificates curl git
 
-# Install Docker
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-chmod a+r /etc/apt/keyrings/docker.gpg
-
-. /etc/os-release
-echo "deb [arch=$$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $${VERSION_CODENAME} stable" \
-  | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-apt-get update -y
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
+# Install Docker via the official convenience script
+curl -fsSL https://get.docker.com | sh
 systemctl enable docker
 systemctl start docker
 usermod -aG docker ubuntu
 
-# Clone repo and start all services with Docker Compose
+# Clone repo and start all services
 git clone ${github_repo} /opt/${app_name}
 cd /opt/${app_name}
 docker compose up -d --build
