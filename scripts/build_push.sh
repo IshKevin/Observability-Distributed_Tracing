@@ -1,44 +1,52 @@
 #!/bin/bash
-# Build the Flask app Docker image and push it to ECR.
-# Run this after `terraform apply` so the ECR repo exists.
+# Build the Flask app image locally, then deploy it to the app EC2 via SSH.
 # Usage: ./scripts/build_push.sh [IMAGE_TAG]
+#
+# Requirements: terraform must have been applied, key_pair_name must be set.
 
 set -euo pipefail
 
 IMAGE_TAG="${1:-latest}"
 
-# Resolve ECR URL from Terraform output (requires terraform init + apply first)
-ECR_URL=$(terraform -chdir=terraform output -raw ecr_repository_url 2>/dev/null)
-AWS_REGION=$(terraform -chdir=terraform output -raw aws_region 2>/dev/null || echo "us-east-1")
+APP_IP=$(terraform -chdir=terraform output -raw app_public_ip 2>/dev/null)
+KEY_PAIR=$(terraform -chdir=terraform output -raw ssh_app 2>/dev/null \
+           | grep -oP '(?<=~/.ssh/)[^.]+(?=\.pem)' || echo "")
 
-if [ -z "$ECR_URL" ]; then
-  echo "ERROR: Could not read ecr_repository_url from terraform output."
+if [ -z "$APP_IP" ]; then
+  echo "ERROR: Could not read app_public_ip from terraform output."
   echo "       Run 'terraform -chdir=terraform apply' first."
   exit 1
 fi
 
-echo "==> ECR repository : $ECR_URL"
-echo "==> Image tag       : $IMAGE_TAG"
+echo "==> Target EC2  : $APP_IP"
+echo "==> Image tag   : $IMAGE_TAG"
 echo ""
 
-# Authenticate Docker to ECR
-echo "==> Authenticating with ECR..."
-aws ecr get-login-password --region "$AWS_REGION" \
-  | docker login --username AWS --password-stdin "$ECR_URL"
+SSH_OPTS=(-o StrictHostKeyChecking=no)
+[ -n "$KEY_PAIR" ] && SSH_OPTS+=(-i "${HOME}/.ssh/${KEY_PAIR}.pem")
 
-# Build
+IMAGE_REF="flask-app:${IMAGE_TAG}"
+SSH_TARGET="ec2-user@${APP_IP}"
+
+# Build image locally for linux/amd64
 echo "==> Building image..."
-docker build \
-  --platform linux/amd64 \
-  -t "${ECR_URL}:${IMAGE_TAG}" \
-  ./app
+docker build --platform linux/amd64 -t "$IMAGE_REF" ./app
 
-# Push
-echo "==> Pushing image..."
-docker push "${ECR_URL}:${IMAGE_TAG}"
+# Pre-build the remote command so SSH receives a single, fully-expanded string
+# (avoids SC2029 — no bare variable expansions inside the ssh argument).
+REMOTE_CMD="docker load \
+  && docker stop flask-app 2>/dev/null || true \
+  && docker rm flask-app 2>/dev/null || true \
+  && docker run -d --name flask-app --restart unless-stopped \
+     -p 5000:5000 -e OTEL_SERVICE_NAME=flask-app -e ENVIRONMENT=production \
+     ${IMAGE_REF}"
+
+# Save and transfer to EC2 — REMOTE_CMD is fully expanded locally before SSH
+# receives it, so client-side expansion is intentional (SC2029).
+echo "==> Transferring image to EC2..."
+# shellcheck disable=SC2029
+docker save "$IMAGE_REF" \
+  | ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "$REMOTE_CMD"
 
 echo ""
-echo "==> Done! Image pushed: ${ECR_URL}:${IMAGE_TAG}"
-echo "    Force a new ECS deployment with:"
-echo "    aws ecs update-service --cluster \$(terraform -chdir=terraform output -raw ecs_cluster_name) \\"
-echo "      --service advanced-monitoring-service --force-new-deployment"
+echo "==> Deployed flask-app:${IMAGE_TAG} to http://${APP_IP}:5000"
