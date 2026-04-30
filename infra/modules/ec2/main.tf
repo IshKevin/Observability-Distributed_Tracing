@@ -127,6 +127,7 @@ resource "aws_instance" "this" {
   user_data = base64encode(templatefile("${path.module}/userdata.sh.tpl", {
     github_repo = var.github_repo
     app_name    = var.app_name
+    environment = var.environment
   }))
 
   root_block_device {
