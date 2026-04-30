@@ -11,6 +11,15 @@ datasources:
     jsonData:
       timeInterval: "15s"
 
+  - name: CloudWatch
+    type: cloudwatch
+    uid: cloudwatch
+    access: proxy
+    editable: true
+    jsonData:
+      authType: ec2_iam_role
+      defaultRegion: eu-west-1
+
   - name: Jaeger
     type: jaeger
     uid: jaeger
@@ -20,5 +29,3 @@ datasources:
     jsonData:
       nodeGraph:
         enabled: true
-      tracesToLogsV2:
-        datasourceUid: ""
