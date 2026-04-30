@@ -10,13 +10,14 @@ systemctl enable docker
 systemctl start docker
 usermod -aG docker ubuntu
 
-git clone "${https://github.com/IshKevin/Observability-Distributed_Tracing.git}" "/opt/${app_name}"
+
+git clone "${github_repo}" "/opt/${app_name}"
 cd "/opt/${app_name}"
 docker compose up -d --build
 
-
 wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 dpkg -i amazon-cloudwatch-agent.deb
+
 
 cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'EOF'
 {
