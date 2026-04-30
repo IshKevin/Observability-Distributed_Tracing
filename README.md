@@ -33,8 +33,8 @@ A production-grade observability platform built on AWS with a full monitoring st
 ## Quick Start — Local (Docker Compose)
 
 ```bash
-git clone https://github.com/IshKevin/advancedMonitoring.git
-cd advancedMonitoring
+git clone https://github.com/IshKevin/Observability-Distributed_Tracing.git
+cd Observability-Distributed_Tracing
 docker compose up -d --build
 ```
 
@@ -119,7 +119,7 @@ Tracks:
 
 ## AWS Deployment (Terraform)
 
-![AWS Infrastructure](/assets/aws-infra.png)
+![AWS Infrastructure](/assets/architecture.png)
 
 ### Provisioned Resources
 
