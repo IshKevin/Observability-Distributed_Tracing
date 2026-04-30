@@ -1,8 +1,5 @@
 #!/bin/bash
-# Build the Flask app image locally, then deploy it to the app EC2 via SSH.
-# Usage: ./scripts/build_push.sh [IMAGE_TAG]
-#
-# Requirements: terraform must have been applied, key_pair_name must be set.
+
 
 set -euo pipefail
 
@@ -28,12 +25,9 @@ SSH_OPTS=(-o StrictHostKeyChecking=no)
 IMAGE_REF="flask-app:${IMAGE_TAG}"
 SSH_TARGET="ec2-user@${APP_IP}"
 
-# Build image locally for linux/amd64
 echo "==> Building image..."
 docker build --platform linux/amd64 -t "$IMAGE_REF" ./app
 
-# Pre-build the remote command so SSH receives a single, fully-expanded string
-# (avoids SC2029 — no bare variable expansions inside the ssh argument).
 REMOTE_CMD="docker load \
   && docker stop flask-app 2>/dev/null || true \
   && docker rm flask-app 2>/dev/null || true \
@@ -41,10 +35,8 @@ REMOTE_CMD="docker load \
      -p 5000:5000 -e OTEL_SERVICE_NAME=flask-app -e ENVIRONMENT=production \
      ${IMAGE_REF}"
 
-# Save and transfer to EC2 — REMOTE_CMD is fully expanded locally before SSH
-# receives it, so client-side expansion is intentional (SC2029).
+
 echo "==> Transferring image to EC2..."
-# shellcheck disable=SC2029
 docker save "$IMAGE_REF" \
   | ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "$REMOTE_CMD"
 
