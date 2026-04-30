@@ -19,9 +19,7 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.trace import StatusCode
 
-# ---------------------------------------------------------------------------
 # OpenTelemetry setup
-# ---------------------------------------------------------------------------
 _resource = Resource.create({
     "service.name": os.getenv("OTEL_SERVICE_NAME", "flask-app"),
     "service.version": "1.0.0",
@@ -36,9 +34,7 @@ _provider.add_span_processor(BatchSpanProcessor(_otlp_exporter))
 trace.set_tracer_provider(_provider)
 tracer = trace.get_tracer(__name__)
 
-# ---------------------------------------------------------------------------
-# Structured JSON logging with trace context injection
-# ---------------------------------------------------------------------------
+
 class _TraceContextFilter(logging.Filter):
     def filter(self, record):
         span = trace.get_current_span()
@@ -59,16 +55,11 @@ logging.root.setLevel(logging.INFO)
 logging.root.addHandler(_handler)
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Flask app + auto-instrumentation
-# ---------------------------------------------------------------------------
 app = Flask(__name__)
 FlaskInstrumentor().instrument_app(app, excluded_urls="metrics,health")
 RequestsInstrumentor().instrument()
 
-# ---------------------------------------------------------------------------
-# RED Metrics (Rate / Errors / Duration)
-# ---------------------------------------------------------------------------
+
 REQUEST_COUNT = Counter(
     "http_requests_total",
     "Total HTTP requests",
@@ -125,9 +116,6 @@ def _record_metrics(response):
     return response
 
 
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 @app.route("/metrics")
 def metrics_endpoint():
     return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
@@ -186,6 +174,22 @@ def simulate_latency():
         time.sleep(delay)
         logger.info("latency simulation done", extra={"delay_seconds": delay})
         return jsonify({"message": f"responded after {delay:.2f}s", "delay": delay})
+
+
+@app.route("/alerts", methods=["POST"])
+def receive_alerts():
+    payload = request.get_json(silent=True) or {}
+    for alert in payload.get("alerts", []):
+        logger.warning(
+            "alertmanager alert received",
+            extra={
+                "alert_name": alert.get("labels", {}).get("alertname"),
+                "severity": alert.get("labels", {}).get("severity"),
+                "status": alert.get("status"),
+                "summary": alert.get("annotations", {}).get("summary"),
+            },
+        )
+    return jsonify({"received": len(payload.get("alerts", []))}), 200
 
 
 @app.route("/api/external-call")
