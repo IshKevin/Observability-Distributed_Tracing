@@ -1,9 +1,6 @@
 groups:
   - name: flask-app
     rules:
-      # -----------------------------------------------------------------------
-      # Alert: Error rate > 5% sustained for 10m
-      # -----------------------------------------------------------------------
       - alert: HighErrorRate
         expr: |
           (
@@ -19,9 +16,7 @@ groups:
           description: >
             Error rate is {{ $value | humanize }}% — above the 5% threshold for 10m.
 
-      # -----------------------------------------------------------------------
-      # Alert: P95 latency > 300ms sustained for 10m
-      # -----------------------------------------------------------------------
+    
       - alert: HighLatency
         expr: |
           histogram_quantile(
@@ -37,9 +32,6 @@ groups:
             P95 latency is {{ $value | humanizeDuration }} on endpoint {{ $labels.endpoint }},
             above the 300ms SLO for 10m.
 
-      # -----------------------------------------------------------------------
-      # Alert: App instance is unreachable
-      # -----------------------------------------------------------------------
       - alert: AppDown
         expr: up{job="flask-app"} == 0
         for: 1m
