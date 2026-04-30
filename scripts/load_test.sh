@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BASE_URL="${1:-http://3.215.184.70:5000}"
+BASE_URL="${1:-http://44.201.56.163:5000}"
 DURATION="${2:-120}"
 CONCURRENCY="${3:-5}"
 
@@ -56,4 +56,4 @@ for PID in "${PIDS[@]}"; do wait "$PID" 2>/dev/null || true; done
 
 echo ""
 echo ""
-echo "==> Load test completed. Check Grafana at http://localhost:3000"
+echo "==> Load test completed. Check Grafana at http://44.201.56.163:3000"
