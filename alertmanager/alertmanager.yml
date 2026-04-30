@@ -16,10 +16,9 @@ route:
 receivers:
   - name: "log-receiver"
     webhook_configs:
-      - url: "http://localhost:5001/alerts"
+      - url: "http://app:5000/alerts"
         send_resolved: true
-        # Replace with a real webhook (Slack, PagerDuty, etc.) for production.
-        # Example Slack URL: https://hooks.slack.com/services/xxx/yyy/zzz
+        # TODO add Slack URL: https://hooks.slack.com/services/xxx/yyy/zzz
 
 inhibit_rules:
   - source_match:
