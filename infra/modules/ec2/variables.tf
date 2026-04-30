@@ -1,6 +1,7 @@
 variable "app_name" {
   description = "Application name used as resource name prefix"
   type        = string
+  default     = "advanced-monitoring"
 }
 
 variable "environment" {
@@ -17,6 +18,7 @@ variable "instance_type" {
 variable "github_repo" {
   description = "GitHub repository URL to clone on EC2"
   type        = string
+  default     = "https://github.com/IshKevin/Observability-Distributed_Tracing.git"
 }
 
 variable "vpc_id" {
