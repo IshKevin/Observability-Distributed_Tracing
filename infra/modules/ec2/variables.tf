@@ -18,7 +18,7 @@ variable "instance_type" {
 variable "github_repo" {
   description = "GitHub repository URL to clone on EC2"
   type        = string
-  default     = "https://github.com/IshKevin/Observability-Distributed_Tracing.git"
+  default     = "https://github.com/IshKevin/advancedMonitoring.git"
 }
 
 variable "vpc_id" {
