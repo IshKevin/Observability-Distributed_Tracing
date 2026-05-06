@@ -14,7 +14,7 @@ groups:
         annotations:
           summary: "High HTTP error rate"
           description: >
-            Error rate is {{ $value | humanize }}% — above the 5% threshold for 10m.
+            Error rate is {{ $value | humanize }}% — above the 5% threshold for 2m.
 
     
       - alert: HighLatency
@@ -30,7 +30,7 @@ groups:
           summary: "High P95 latency on {{ $labels.endpoint }}"
           description: >
             P95 latency is {{ $value | humanizeDuration }} on endpoint {{ $labels.endpoint }},
-            above the 300ms SLO for 10m.
+            above the 300ms SLO for 2m.
 
       - alert: AppDown
         expr: up{job="flask-app"} == 0
