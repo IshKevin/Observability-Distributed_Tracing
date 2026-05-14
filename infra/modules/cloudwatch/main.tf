@@ -1,14 +1,5 @@
 data "aws_region" "current" {}
 
-resource "aws_cloudwatch_log_group" "app" {
-  name              = "/aws/ec2/${var.app_name}/${var.environment}"
-  retention_in_days = var.log_retention_days
-
-  tags = {
-    Name = "${var.app_name}-${var.environment}-logs"
-  }
-}
-
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   alarm_name          = "${var.app_name}-${var.environment}-cpu-high"
   comparison_operator = "GreaterThanThreshold"
@@ -97,7 +88,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         type   = "metric"
         x      = 0
         y      = 6
-        width  = 12
+        width  = 24
         height = 6
         properties = {
           title   = "Status Check Failed"
@@ -109,19 +100,6 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics = [
             ["AWS/EC2", "StatusCheckFailed", "InstanceId", var.instance_id]
           ]
-        }
-      },
-      {
-        type   = "log"
-        x      = 12
-        y      = 6
-        width  = 12
-        height = 6
-        properties = {
-          title   = "Application Logs"
-          region  = data.aws_region.current.name
-          query   = "SOURCE '${aws_cloudwatch_log_group.app.name}' | fields @timestamp, @message | sort @timestamp desc | limit 50"
-          view    = "table"
         }
       }
     ]

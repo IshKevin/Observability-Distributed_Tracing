@@ -1,13 +1,3 @@
-output "log_group_name" {
-  description = "CloudWatch log group name"
-  value       = aws_cloudwatch_log_group.app.name
-}
-
-output "log_group_arn" {
-  description = "CloudWatch log group ARN"
-  value       = aws_cloudwatch_log_group.app.arn
-}
-
 output "cpu_alarm_name" {
   description = "CloudWatch CPU alarm name"
   value       = aws_cloudwatch_metric_alarm.cpu_high.alarm_name

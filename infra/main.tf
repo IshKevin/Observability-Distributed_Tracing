@@ -62,8 +62,7 @@ module "s3" {
 module "cloudwatch" {
   source = "./modules/cloudwatch"
 
-  app_name           = var.app_name
-  environment        = var.environment
-  instance_id        = module.ec2.instance_id
-  log_retention_days = var.log_retention_days
+  app_name    = var.app_name
+  environment = var.environment
+  instance_id = module.ec2.instance_id
 }

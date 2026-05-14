@@ -19,8 +19,3 @@ variable "cpu_threshold" {
   default     = 80
 }
 
-variable "log_retention_days" {
-  description = "Days to retain logs in CloudWatch"
-  type        = number
-  default     = 30
-}

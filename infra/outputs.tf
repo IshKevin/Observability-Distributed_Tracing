@@ -43,7 +43,7 @@ output "s3_bucket_name" {
   value       = module.s3.bucket_name
 }
 
-output "cloudwatch_log_group" {
-  description = "CloudWatch log group name"
-  value       = module.cloudwatch.log_group_name
+output "loki_url" {
+  description = "Loki log aggregation URL"
+  value       = "http://${module.ec2.public_ip}:3100"
 }
