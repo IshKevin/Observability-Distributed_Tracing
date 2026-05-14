@@ -28,6 +28,15 @@ build/
 .env.local
 .env.*.local
 
+# Loki runtime data
+loki/chunks/
+loki/rules/
+loki/index/
+loki/cache/
+
+# Fluent Bit runtime DB
+fluent-bit/*.db
+
 # OS
 .DS_Store
 Thumbs.db
@@ -39,3 +48,9 @@ ehthumbs.db
 *.swp
 *.swo
 *~
+
+#docs
+ANSWER_KEY_PART1.md
+ANSWER_KEY_PART2.md
+ANSWER_KEY_PART3.md
+REVIEW_QUESTIONS.md
