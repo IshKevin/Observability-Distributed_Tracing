@@ -6,7 +6,7 @@ A production-grade observability platform built on AWS with a full monitoring st
 
 ## Architecture Overview
 
-![Architecture Diagram](/assets/architecture.png)
+![Architecture Diagram](/assets/architecture-new.png)
 
 ### Flow Summary
 
